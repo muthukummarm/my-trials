@@ -1,0 +1,61 @@
+package com.yyy.muthu.trials;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.JsonMappingException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class JsonUtil {
+	private static final Logger LOGGER = Logger.getInstance(JsonUtil.class);
+	private static ObjectMapper objectMapper = new ObjectMapper();
+
+	@JsonIgnore
+	public static String objectToJson(Object valueObject) {
+		String json = null;
+		try {
+			objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+			objectMapper.setSerializationInclusion(Include.NON_NULL);
+			json = objectMapper.writeValueAsString(valueObject);
+		} catch (IOException e) {
+			LOGGER.log(LogLevel.WARN, e);
+		}
+		return json;
+	}
+
+	@JsonIgnore
+	public static <T> T jsonToObject(ByteArrayInputStream json, Class<T> jsonObjectClass)
+			throws JsonParseException, JsonMappingException, IOException {
+
+		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		objectMapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+		objectMapper.addMixIn(FinancialInstrumentVO.class, IgnoreFiVoSetEnumType.class);
+		objectMapper.addMixIn(AccountVO.class, IgnoreFiVoSetEnumType.class);
+		T value = objectMapper.readValue(json, jsonObjectClass);
+		return value;
+	}
+}
+
+abstract class IgnoreFiVoSetEnumType {
+
+	@JsonIgnore
+	abstract public void setInstrumentTypeEnum(FinancialInstrumentTypeClass value);
+
+	@JsonIgnore
+	abstract public void setLegalEntity(LegalEntity value);
+
+	@JsonIgnore
+	abstract public void setUserGroup(AccountUserGroup value);
+
+	@JsonIgnore
+	abstract public void setAccountType(AccountType value);
+
+}

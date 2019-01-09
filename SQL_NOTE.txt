@@ -1,0 +1,11 @@
+List all table names from current schema
+========================================
+SELECT
+ table_name
+FROM
+  all_tables
+where 
+ table_name like 'XYZ%'
+ORDER BY
+  table_name
+  
