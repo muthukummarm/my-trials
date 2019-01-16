@@ -1,3 +1,10 @@
+GIT:
+Revert last commit:
+git reset --hard 5c4d44e7088fa8242feef5ebbe3fe516da46080a
+git push -f origin develop
+
+SQL
+===
 List all table names from current schema
 ========================================
 SELECT
